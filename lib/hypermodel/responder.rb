@@ -13,10 +13,10 @@ module Hypermodel
       controller.render json: responder
     end
 
-    def initialize(resource_name, action, resource, controller)
+    def initialize(resource_name, action, record, controller)
       @resource_name = resource_name
       @action        = action
-      @resource      = Resource.new(resource, controller)
+      @resource      = Resource.new(record, controller)
     end
 
     def to_json(*opts)
