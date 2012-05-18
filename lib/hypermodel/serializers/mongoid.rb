@@ -1,40 +1,31 @@
 module Hypermodel
   module Serializers
     class Mongoid
-      def initialize(resource, controller)
+      attr_reader :resource, :attributes
+      def initialize(resource)
         @resource   = resource
         @attributes = resource.attributes.dup
-        @controller = controller
       end
 
-      def to_json(*opts)
-        attrs = @attributes.update(links).update(embedded)
-        attrs.to_json(*opts)
-      end
-
-      def links
-        hash = { self: { href: @controller.polymorphic_url(@resource) } }
-
-        referenced_relations.each do |name, metadata|
-          related = @resource.send(name)
-          relation = metadata.relation
-
-          if relation == ::Mongoid::Relations::Referenced::In
-            unless related.nil? || (related.respond_to?(:empty?) && related.empty?)
-              hash.update(name => { href: @controller.polymorphic_url(related) })
-            end
-          elsif relation == ::Mongoid::Relations::Referenced::Many
-            hash.update(name => { href: @controller.polymorphic_url([@resource, name]) })
-          else
-            raise "Referenced relation type not implemented: #{relation}"
-          end
-
+      def resources
+        links = referenced_relations.select do |name, metadata|
+          metadata.relation == ::Mongoid::Relations::Referenced::In
         end
 
-        { _links: hash }
+        links.inject({}) do |acc, (name, metadata)|
+          acc.update(name => @resource.send(name))
+        end
       end
 
-      def embedded
+      def sub_resources
+        links = referenced_relations.select do |name, metadata|
+          metadata.relation == ::Mongoid::Relations::Referenced::Many
+        end
+
+        links.keys
+      end
+
+      def embedded_resources
         return {} if embedded_relations.empty?
 
         embedded_relations.inject({ _embedded: {} }) do |acc, (name, metadata)|
@@ -47,7 +38,6 @@ module Hypermodel
       end
 
       private
-
       def extract_embedded_attributes(name, metadata)
         relation = metadata.relation
 

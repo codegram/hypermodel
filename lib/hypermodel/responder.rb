@@ -1,8 +1,7 @@
 require 'hypermodel/serializers/mongoid'
+require 'hypermodel/resource'
 
 module Hypermodel
-  Serializer = Serializers::Mongoid
-
   class Responder
     def self.call(*args)
       controller    = args[0]
@@ -18,7 +17,8 @@ module Hypermodel
     def initialize(resource_name, action, resource, controller)
       @resource_name = resource_name
       @action        = action
-      @resource      = Serializer.new(resource, controller)
+      @serializer    = Serializers::Mongoid.new(resource)
+      @resource      = Resource.new(@serializer, controller)
     end
 
     def to_json(*opts)
