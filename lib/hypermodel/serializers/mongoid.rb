@@ -8,21 +8,15 @@ module Hypermodel
       end
 
       def resources
-        links = referenced_relations.select do |name, metadata|
-          metadata.relation == ::Mongoid::Relations::Referenced::In
-        end
+        relations = select_relations_by_type(::Mongoid::Relations::Referenced::In)
 
-        links.inject({}) do |acc, (name, metadata)|
-          acc.update(name => @resource.send(name))
+        relations.inject({}) do |acc, (name, _)|
+          acc.update(name => @record.send(name))
         end
       end
 
       def sub_resources
-        links = referenced_relations.select do |name, metadata|
-          metadata.relation == ::Mongoid::Relations::Referenced::Many
-        end
-
-        links.keys
+        select_relations_by_type(::Mongoid::Relations::Referenced::Many).keys
       end
 
       def embedded_resources
@@ -38,6 +32,12 @@ module Hypermodel
       end
 
       private
+      def select_relations_by_type(type)
+        referenced_relations.select do |name, metadata|
+          metadata.relation == type
+        end
+      end
+
       def extract_embedded_attributes(name, metadata)
         relation = metadata.relation
 
