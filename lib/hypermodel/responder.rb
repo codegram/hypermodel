@@ -1,6 +1,18 @@
 require 'hypermodel/resource'
 
 module Hypermodel
+  # Public: Responsible for exposing a resource in JSON-HAL format.
+  #
+  # Examples
+  #
+  # class PostsController < ApplicationController
+  #   respond_to :json
+  #
+  #   def show
+  #     @post = Post.find params[:id]
+  #     respond_with(@post, responder: Hypermodel::Responder)
+  #   end
+  # end
   class Responder
     def self.call(*args)
       controller    = args[0]
