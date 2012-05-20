@@ -56,7 +56,7 @@ module Hypermodel
       { _embedded: embedded_resources }
     end
 
-    # Private: Returns the url wrapped in a Hash with in a HAL way.
+    # Private: Returns the url wrapped in a Hash in HAL format.
     def polymorphic_url(record_or_hash_or_array, options = {})
       { href: @controller.polymorphic_url(record_or_hash_or_array, options = {}) }
     end
