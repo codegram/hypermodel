@@ -1,8 +1,18 @@
-require 'hypermodel/serializers/mongoid'
+require 'hypermodel/resource'
 
 module Hypermodel
-  Serializer = Serializers::Mongoid
-
+  # Public: Responsible for exposing a resource in JSON-HAL format.
+  #
+  # Examples
+  #
+  # class PostsController < ApplicationController
+  #   respond_to :json
+  #
+  #   def show
+  #     @post = Post.find params[:id]
+  #     respond_with(@post, responder: Hypermodel::Responder)
+  #   end
+  # end
   class Responder
     def self.call(*args)
       controller    = args[0]
@@ -15,10 +25,10 @@ module Hypermodel
       controller.render json: responder
     end
 
-    def initialize(resource_name, action, resource, controller)
+    def initialize(resource_name, action, record, controller)
       @resource_name = resource_name
       @action        = action
-      @resource      = Serializer.new(resource, controller)
+      @resource      = Resource.new(record, controller)
     end
 
     def to_json(*opts)
