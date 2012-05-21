@@ -9,7 +9,7 @@ GIT
 PATH
   remote: .
   specs:
-    hypermodel (0.0.1)
+    hypermodel (0.1.0)
       mongoid
       rails (~> 3.2.3)
 
