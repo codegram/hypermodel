@@ -1,0 +1,8 @@
+--title "Hypermodel"
+--readme README.md
+--protected
+--private
+--plugin tomdoc
+lib 
+-
+[A-Z]*.*

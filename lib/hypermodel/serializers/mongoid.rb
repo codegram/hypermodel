@@ -1,6 +1,6 @@
 module Hypermodel
   module Serializers
-    # Private: A Mongoid serializer that complies with the Hypermodel
+    # Internal: A Mongoid serializer that complies with the Hypermodel
     # Serializer API.
     #
     # It is used by Hypermodel::Resource to extract the attributes and
@@ -24,8 +24,8 @@ module Hypermodel
       # Public: Returns a Hash with the resources that are linked to the
       # record. It will be used by Hypermodel::Resource.
       #
-      # An example of a linked resource could be the author of a post. Think of
-      # `/authors/:author_id`
+      # An example of a linked resource could be the author of a post. Think
+      # of `/authors/:author_id`
       #
       # The format of the returned Hash must be the following:
       #
@@ -62,12 +62,12 @@ module Hypermodel
       #
       # An example of the returning Hash could be the following:
       #
-      # {"comments"=>
-      #   [
-      #     {"_id"=>"4fb941cb82b4d46162000007", "body"=>"Comment 1"},
-      #     {"_id"=>"4fb941cb82b4d46162000008", "body"=>"Comment 2"}
-      #   ]
-      # }
+      #   {"comments"=>
+      #     [
+      #       {"_id"=>"4fb941cb82b4d46162000007", "body"=>"Comment 1"},
+      #       {"_id"=>"4fb941cb82b4d46162000008", "body"=>"Comment 2"}
+      #     ]
+      #   }
       def embedded_resources
         return {} if embedded_relations.empty?
 
@@ -80,7 +80,10 @@ module Hypermodel
         end
       end
 
+      #######
       private
+      #######
+
       def select_relations_by_type(type)
         referenced_relations.select do |name, metadata|
           metadata.relation == type

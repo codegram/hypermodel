@@ -14,7 +14,7 @@ module Hypermodel
 
     # Public: Initializes a Resource.
     #
-    # record - A Mongoid instance of a model.
+    # record     - A Mongoid instance of a model.
     # controller - An ActionController instance.
     #
     # TODO: Detect record type (ActiveRecord, DataMapper, Mongoid, etc..) and
@@ -31,9 +31,9 @@ module Hypermodel
       attributes.update(links).update(embedded).to_json(*opts)
     end
 
-    # Private: Constructs the _links section of the response.
+    # Internal: Constructs the _links section of the response.
     #
-    # Returns: A Hash of the links of the resource. It will include, at least,
+    # Returns a Hash of the links of the resource. It will include, at least,
     # a link to itself.
     def links
       _links = { self: polymorphic_url(record) }
@@ -49,14 +49,14 @@ module Hypermodel
       { _links: _links }
     end
 
-    # Private: Constructs the _embedded section of the response.
+    # Internal: Constructs the _embedded section of the response.
     #
-    # Returns: A Hash of the embedded resources of the resource.
+    # Returns a Hash of the embedded resources of the resource.
     def embedded
       { _embedded: embedded_resources }
     end
 
-    # Private: Returns the url wrapped in a Hash in HAL format.
+    # Internal: Returns the url wrapped in a Hash in HAL format.
     def polymorphic_url(record_or_hash_or_array, options = {})
       { href: @controller.polymorphic_url(record_or_hash_or_array, options = {}) }
     end
