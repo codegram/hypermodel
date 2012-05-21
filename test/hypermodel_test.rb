@@ -28,7 +28,6 @@ class PostsControllerTest < ActionController::TestCase
 
   test "returns the post" do
     body = JSON.load(response.body)
-    pp body
 
     assert_equal @post.id.to_s,  body['_id']
     assert_equal 'My post',      body['title']
