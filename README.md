@@ -40,6 +40,50 @@ Now if you ask your API for a Post:
         [{"_id"=>"4fb648996b98c9091900000d", "body"=>"Comment 1"},
          {"_id"=>"4fb648996b98c9091900000e", "body"=>"Comment 2"}]}}
 
+## Gotchas
+
+These are some implementation gotchas which are welcome to be fixed if you can
+think of workarounds :)
+
+### Routes should reflect data model
+
+For Hypermodel to generate `_links` correctly, the relationship/embedding
+structure of the model must match exactly that of the app routing. That means,
+that if you have `Blogs` that have many `Posts` which have many `Comments`,
+the routes.rb file should reflect it:
+
+````ruby
+# config/routes.rb
+resources :blogs do
+  resources :posts do
+    resources :comments
+  end
+end
+````
+
+### Every resource controller must implement the :show action at least
+
+Each resource and subresource must respond to the `show` action (so they can be
+linked from anywhere, in the `_links` section).
+
+### The first belongs_to decides the hierarchy chain
+
+So if a `Post` belongs to an author and to a blog, and you want to access
+posts through blogs, not authors, you have to put the `belongs_to :blog`
+**before** `belongs_to :author`:
+
+````ruby
+# app/models/post.rb
+class Post
+  include Mongoid::Document
+
+  belongs_to :blog
+  belongs_to :author
+end
+````
+
+I know, lame.
+
 ## Contributing
 
 * [List of hypermodel contributors][contributors]

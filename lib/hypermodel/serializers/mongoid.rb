@@ -80,12 +80,30 @@ module Hypermodel
         end
       end
 
+      # Public: Returns a Hash with the resources that are embedding us (our
+      # immediate ancestors).
+      def embedding_resources
+        return {} if embedded_relations.empty?
+
+        embedded = select_embedded_by_type(::Mongoid::Relations::Embedded::In)
+
+        embedded.inject({}) do |acc, (name, _)|
+          acc.update(name => @record.send(name))
+        end
+      end
+
       #######
       private
       #######
 
       def select_relations_by_type(type)
         referenced_relations.select do |name, metadata|
+          metadata.relation == type
+        end
+      end
+
+      def select_embedded_by_type(type)
+        embedded_relations.select do |name, metadata|
           metadata.relation == type
         end
       end

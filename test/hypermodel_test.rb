@@ -3,6 +3,7 @@ require 'json'
 
 class PostsControllerTest < ActionController::TestCase
   def setup
+    @blog = Blog.create(title: 'Rants')
     @post = Post.create(
       title: "My post",
       body: "Foo bar baz.",
@@ -14,10 +15,11 @@ class PostsControllerTest < ActionController::TestCase
       reviews: [
         Review.create(body: 'This is bad'),
         Review.create(body: 'This is good'),
-      ]
+      ],
+      blog_id: @blog.id
     )
 
-    post :show, { id: @post.id, format: :json }
+    post :show, { blog_id: @blog.id, id: @post.id, format: :json }
   end
 
   test "it returns a successful response" do
@@ -26,10 +28,16 @@ class PostsControllerTest < ActionController::TestCase
 
   test "returns the post" do
     body = JSON.load(response.body)
+    pp body
 
     assert_equal @post.id.to_s,  body['_id']
     assert_equal 'My post',      body['title']
     assert_equal 'Foo bar baz.', body['body']
+  end
+
+  test "returns the parent blog" do
+    body = JSON.load(response.body)
+    assert_equal blog_url(@blog), body['_links']['blog']['href']
   end
 
   test "returns the embedded comments" do
