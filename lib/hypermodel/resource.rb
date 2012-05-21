@@ -1,4 +1,4 @@
-require 'hypermodel/serializers/mongoid'
+require 'hypermodel/serializer'
 
 module Hypermodel
   # Public: Responsible for building the response in JSON-HAL format. It is
@@ -18,7 +18,7 @@ module Hypermodel
     #
     # Returns a flattened Array with the hierarchy of records.
     TraverseUpwards = lambda do |record|
-      serializer = Serializers::Mongoid.new(record)
+      serializer = Serializer.build(record)
 
       parent_name, parent_resource = (
         serializer.embedding_resources.first || serializer.resources.first
@@ -43,7 +43,7 @@ module Hypermodel
     # choose the corresponding serializer.
     def initialize(record, controller)
       @record     = record
-      @serializer = Serializers::Mongoid.new(record)
+      @serializer = Serializer.build(record)
       @controller = controller
     end
 
