@@ -1,6 +1,6 @@
 require 'forwardable'
-require 'hypermodel/serializers/mongoid'
 require 'hypermodel/traverse_ancestors'
+require 'hypermodel/serializer'
 
 module Hypermodel
   # Public: Responsible for building the response in JSON-HAL format. It is
@@ -24,7 +24,7 @@ module Hypermodel
     # choose the corresponding serializer.
     def initialize(record, controller)
       @record     = record
-      @serializer = Serializers::Mongoid.new(record)
+      @serializer = Serializer.build(record)
       @controller = controller
     end
 
