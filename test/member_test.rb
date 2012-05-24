@@ -1,7 +1,9 @@
 require 'test_helper'
 require 'json'
 
-class PostsControllerTest < ActionController::TestCase
+class MemberTest < ActionController::TestCase
+  tests PostsController
+
   def setup
     @blog = Blog.create(title: 'Rants')
     @post = Post.create(
