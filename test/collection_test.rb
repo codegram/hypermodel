@@ -21,20 +21,25 @@ class CollectionTest < ActionController::TestCase
       blog_id: @blog.id
     )
     @comments = @post.comments
+  end
 
+  def request!
     post :index, { blog_id: @blog.id, post_id: @post.id, format: :json }
   end
 
   test "it returns a successful response" do
+    request!
     assert response.successful?
   end
 
   test "returns the self link" do
+    request!
     body = JSON.load(response.body)
     assert_match %r{/comments}, body['_links']['self']['href']
   end
 
   test "returns the comments" do
+    request!
     body = JSON.load(response.body)
 
     comments = body['_embedded']['comments']
@@ -50,6 +55,7 @@ class CollectionTest < ActionController::TestCase
   end
 
   test "returns the parent post" do
+    request!
     body = JSON.load(response.body)
     assert_equal blog_post_url(@blog, @post), body['_links']['post']['href']
   end
@@ -59,10 +65,12 @@ class CollectionTest < ActionController::TestCase
     _post = blog.posts.create(title: 'hey') # Post with no comments
 
     post :index, { blog_id: blog.id, post_id: _post.id, format: :json }
-
     body = JSON.load(response.body)
 
     assert response.successful?
     assert_equal [], body['_embedded']['comments']
+
+    assert_equal blog_post_comments_url(blog.id, _post.id), body['_links']['self']['href']
+    assert_equal blog_post_url(blog.id, _post.id), body['_links']['post']['href']
   end
 end
