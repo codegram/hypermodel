@@ -53,4 +53,16 @@ class CollectionTest < ActionController::TestCase
     body = JSON.load(response.body)
     assert_equal blog_post_url(@blog, @post), body['_links']['post']['href']
   end
+
+  test "it handles empty collections gracefully" do
+    blog = Blog.create(title: 'Hey')
+    _post = blog.posts.create(title: 'hey') # Post with no comments
+
+    post :index, { blog_id: blog.id, post_id: _post.id, format: :json }
+
+    body = JSON.load(response.body)
+
+    assert response.successful?
+    assert_equal [], body['_embedded']['comments']
+  end
 end

@@ -1,5 +1,6 @@
 require 'hypermodel/resource'
 require 'hypermodel/collection'
+require 'hypermodel/empty_collection'
 
 module Hypermodel
   # Public: Responsible for exposing a resource in JSON-HAL format.
@@ -29,11 +30,16 @@ module Hypermodel
     def initialize(resource_name, action, record, controller)
       @resource_name = resource_name
       @action        = action
-      @resource      = if record.respond_to?(:each)
-                         Collection.new(record, controller)
-                       else
-                         Resource.new(record, controller)
-                       end
+
+      if record.respond_to?(:each)
+        @resource = if record.empty?
+                      EmptyCollection.new(resource_name, controller)
+                    else
+                      Collection.new(record, controller)
+                    end
+      else
+        @resource = Resource.new(record, controller)
+      end
     end
 
     def to_json(*opts)
