@@ -54,6 +54,23 @@ module Hypermodel
         representation.links[:custom_comment].must_equal '/path/to/comment'
       end
 
+      describe 'with :if' do
+        it 'includes the link if the condition is truthy' do
+          record.valid = true
+          Representation.link :comment, if: proc { record.valid }
+
+          context.expect(:polymorphic_url, '/path/to/comment', ['Comment'])
+          representation.links[:comment].must_equal '/path/to/comment'
+        end
+
+        it 'does not include the link if the condition is falsy' do
+          record.valid = false
+          Representation.link :comment, if: proc { record.valid }
+
+          representation.links.wont_include :comment
+        end
+      end
+
       after do
         context.verify
         Representation.class_variable_set(:@@links, [])

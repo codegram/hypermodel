@@ -10,13 +10,13 @@ module Hypermodel
       @context = context
     end
 
-    def self.link(name, &block)
-      @@links << [name, block]
+    def self.link(name, options = {}, &block)
+      @@links << [name, options, block]
       @@links
     end
 
-    def self.embed(name, &block)
-      @@embeds << [name, block]
+    def self.embed(name, options = {}, &block)
+      @@embeds << [name, options, block]
       @@embeds
     end
 
@@ -25,24 +25,32 @@ module Hypermodel
     end
 
     def links
-      @@links.inject({self: context.polymorphic_url(record)}) do |links, (name, block)|
-        value = if block
-          block.call(record, context)
+      @@links.inject({self: context.polymorphic_url(record)}) do |links, (name, options, block)|
+        if (options[:if] && options[:if].call(record, context)) || options[:if] == nil
+          value = if block
+            block.call(record, context)
+          else
+            context.polymorphic_url(record.send(name))
+          end
+          links.update(name => value)
         else
-          context.polymorphic_url(record.send(name))
+          links
         end
-        links.update(name => value)
       end
     end
 
     def embedded
-      @@embeds.inject({}) do |embedded, (name, block)|
-        value = if block
-          block.call(record, context)
+      @@embeds.inject({}) do |embedded, (name, options, block)|
+        if (options[:if] && options[:if].call(record, context)) || options[:if] == nil
+          value = if block
+            block.call(record, context)
+          else
+            record.send(name)
+          end
+          embedded.update(name => value)
         else
-          record.send(name)
+          embedded
         end
-        embedded.update(name => value)
       end
     end
 
