@@ -10,13 +10,13 @@ module Hypermodel
       @context = context
     end
 
-    def self.link(name)
-      @@links << name
+    def self.link(name, &block)
+      @@links << [name, block]
       @@links
     end
 
-    def self.embed(name)
-      @@embeds << name
+    def self.embed(name, &block)
+      @@embeds << [name, block]
       @@embeds
     end
 
@@ -25,14 +25,24 @@ module Hypermodel
     end
 
     def links
-      @@links.inject({self: context.polymorphic_url(record)}) do |links, name|
-        links.update(name => context.polymorphic_url(record.send(name)))
+      @@links.inject({self: context.polymorphic_url(record)}) do |links, (name, block)|
+        value = if block
+          block.call(record, context)
+        else
+          context.polymorphic_url(record.send(name))
+        end
+        links.update(name => value)
       end
     end
 
     def embedded
-      @@embeds.inject({}) do |embedded, name|
-        embedded.update(name => record.send(name))
+      @@embeds.inject({}) do |embedded, (name, block)|
+        value = if block
+          block.call(record, context)
+        else
+          record.send(name)
+        end
+        embedded.update(name => value)
       end
     end
 

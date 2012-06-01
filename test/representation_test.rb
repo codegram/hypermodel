@@ -30,6 +30,10 @@ module Hypermodel
     describe 'links' do
       let(:record) { OpenStruct.new(comment: 'Comment') }
 
+      before do
+        context.expect(:polymorphic_url, '/self', [record])
+      end
+
       it 'returns a Hash with the name of each link and its url' do
         Representation.link(:comment)
 
@@ -37,16 +41,22 @@ module Hypermodel
         representation.links[:comment].must_equal '/path/to/comment'
       end
 
-      it 'includes a link to self' do
-        context.expect(:polymorphic_url, '/self', [record])
-
+      it 'always includes a link to self' do
         representation.links[:self].must_equal '/self'
       end
 
-      it 'handles blocks'
+      it 'handles blocks' do
+        context.expect(:url_for, '/path/to/comment', [record])
+
+        Representation.link :custom_comment do |record, context|
+          context.url_for(record)
+        end
+        representation.links[:custom_comment].must_equal '/path/to/comment'
+      end
 
       after do
         context.verify
+        Representation.class_variable_set(:@@links, [])
       end
     end
 
@@ -60,10 +70,21 @@ module Hypermodel
         representation.embedded[:author].must_equal({name: 'Joe'})
       end
 
+      it 'handles blocks' do
+        record.expect(:custom_author, {name: 'Bob'})
+
+        Representation.embed :custom_author do |record, context|
+          record.custom_author
+        end
+
+        representation.embedded[:custom_author].must_equal({name: 'Bob'})
+      end
+
       it 'creates new Representations for each embedded resource'
 
       after do
         record.verify
+        Representation.class_variable_set(:@@embeds, [])
       end
     end
   end
