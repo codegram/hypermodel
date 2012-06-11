@@ -8,11 +8,9 @@ class Link
   end
 
   def link
-    if @block
-      @block.call(@record, @context)
-    else
-      @context.polymorphic_url(@record.send(@name))
-    end
+    return @block.call(@record, @context) if @block
+
+    @context.polymorphic_url(@record.send(@name))
   end
 
   def skip?
@@ -29,6 +27,8 @@ end
 
 class LinkToSelf < Link
   def link
+    # return @context.request.url
+    # p @record.inspect
     @context.polymorphic_url(@record)
   end
 end
